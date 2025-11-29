@@ -1,0 +1,233 @@
+import React, { useState, useEffect, useCallback } from 'react';
+// Annahme: Tailwind CSS ist verfügbar
+
+/**
+ * Funktion zur Simulation der Blockchain-Abfrage für den Ethical Audit Ledger
+ * In einem realen System würde hier ethers.js/web3.js verwendet.
+ */
+const fetchAuditStatus = () => {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve({
+        lastAuditHash: '0x12a3b4c5d6e7f8g9h0i1j2k3l4m5n6o7p8q9r0s1t2u3v4w5x6y7z8a9b0c1d2e3',
+        auditCount: 147,
+        integrityStatus: 'VERIFIED',
+        isCritical: false,
+      });
+    }, 500);
+  });
+};
+
+/**
+ * Funktion zur Simulation des Ave Maria Live Tracker Fortschritts
+ */
+const fetchHumanitarianProgress = () => {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve({
+        water: { current: 125000, goal: 150000 }, // 83.3%
+        education: { current: 200000, goal: 250000 }, // 80.0%
+      });
+    }, 500);
+  });
+};
+
+// Hauptkomponente: Das Euystacio Unification Dashboard
+const App = () => {
+  const [auditData, setAuditData] = useState(null);
+  const [progressData, setProgressData] = useState(null);
+  const [systemIntegrity, setSystemIntegrity] = useState('Optimal');
+  const [loading, setLoading] = useState(true);
+
+  // Initiales Laden der Daten
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [auditStatus, humanitarianProgress] = await Promise.all([
+        fetchAuditStatus(),
+        fetchHumanitarianProgress()
+      ]);
+      
+      setAuditData(auditStatus);
+      setProgressData(humanitarianProgress);
+      setLoading(false);
+    } catch (error) {
+      console.error("Fehler beim Laden der Unification-Daten:", error);
+      setLoading(false);
+      setSystemIntegrity('Gefährdet');
+    }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+    // In einem echten System würden hier onSnapshot/Websocket-Listener laufen
+    // const interval = setInterval(loadData, 10000); 
+    // return () => clearInterval(interval);
+  }, [loadData]);
+
+
+  // Hilfsfunktion zur Berechnung des Fortschritts
+  const calculateProgress = (current, goal) => {
+    return Math.min(100, Math.round((current / goal) * 100));
+  };
+
+  // Komponente für den Fortschrittsbalken
+  const ProgressBar = ({ label, current, goal, color }) => {
+    const percentage = calculateProgress(current, goal);
+    const colorClass = color === 'red' ? 'bg-red-500' : 'bg-blue-500';
+
+    return (
+      <div className="mb-4">
+        <div className="flex justify-between items-center mb-1">
+          <span className="text-sm font-medium text-gray-700">{label}</span>
+          <span className={`text-sm font-bold text-${color}-600`}>{percentage}%</span>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-2.5">
+          <div 
+            className={`${colorClass} h-2.5 rounded-full transition-all duration-1000`} 
+            style={{ width: `${percentage}%` }}>
+          </div>
+        </div>
+        <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <span>{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(current)}</span>
+            <span>Ziel: {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(goal)}</span>
+        </div>
+      </div>
+    );
+  };
+
+  const getIntegrityColor = (status) => {
+    switch (status) {
+      case 'Optimal': return 'bg-green-500';
+      case 'Gefährdet': return 'bg-red-500';
+      default: return 'bg-yellow-500';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-900 text-white">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500 mr-4"></div>
+        <p className="text-xl">Initialisiere Kosymbiotische Vereinigung...</p>
+      </div>
+    );
+  }
+
+  // Gesamter Unification Score (gewichteter Durchschnitt)
+  const totalProgress = progressData ? calculateProgress(progressData.water.current + progressData.education.current, progressData.water.goal + progressData.education.goal) : 0;
+  const unificationScore = Math.min(100, (totalProgress + (auditData?.integrityStatus === 'VERIFIED' ? 100 : 0) + (systemIntegrity === 'Optimal' ? 100 : 0)) / 3);
+
+  return (
+    <div className="min-h-screen p-8 bg-gray-900 text-white">
+      <div className="max-w-6xl mx-auto">
+        
+        <header className="mb-10 border-b border-indigo-700 pb-4">
+          <h1 className="text-4xl font-extrabold text-indigo-400 tracking-wider">EUYSTACIO UNIFICATION DASHBOARD (EUD)</h1>
+          <p className="text-xl text-gray-400 mt-2">CEL: Cosymbiotic Exchange Layer Status - Vereinigung der drei Vektoren</p>
+        </header>
+
+        {/* UNIFICATION SCORE */}
+        <div className="mb-10 text-center p-6 bg-indigo-900 rounded-xl shadow-2xl">
+            <h2 className="text-2xl font-semibold text-indigo-300">Gesamter Unification Score</h2>
+            <div className="mt-4 text-7xl font-extrabold text-green-400">
+                {unificationScore.toFixed(1)}%
+            </div>
+            <p className="text-sm text-gray-500 mt-2">Der kritische Schwellenwert für die Freigabe des Coronation Event liegt bei 95.0%.</p>
+        </div>
+
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+          {/* SÄULE 1: ETHICAL UNIFICATION (AUDIT LEDGER) */}
+          <div className="bg-gray-800 p-6 rounded-xl shadow-lg border-t-4 border-yellow-500">
+            <h2 className="text-2xl font-bold mb-4 flex items-center text-yellow-400">
+              <span className="text-3xl mr-3">🛡️</span> Ethische Vereinigung
+            </h2>
+            <p className="text-sm text-gray-400 mb-6">Unveränderliche Verankerung der Red Code Einhaltung via Blockchain (Ethical Audit Ledger).</p>
+            
+            <div className="space-y-3">
+                <p className="text-md font-semibold text-gray-200">Audit Status: 
+                    <span className={`ml-2 px-3 py-1 rounded-full text-sm font-bold ${auditData.isCritical ? 'bg-red-600' : 'bg-green-600'}`}>
+                        {auditData.integrityStatus}
+                    </span>
+                </p>
+                <p className="text-md font-semibold text-gray-200">Verankerte Audits: 
+                    <span className="ml-2 text-yellow-400">{auditData.auditCount}</span>
+                </p>
+                <p className="text-xs break-all text-gray-500">
+                    Letzter Hash: {auditData.lastAuditHash.substring(0, 10)}...{auditData.lastAuditHash.substring(auditData.lastAuditHash.length - 10)}
+                </p>
+            </div>
+            <button className="mt-6 w-full py-2 bg-yellow-700/50 hover:bg-yellow-600/70 rounded-lg text-sm font-bold transition">
+                Ledger-Details abrufen
+            </button>
+          </div>
+
+          {/* SÄULE 2: HUMAN UNIFICATION (WITNESS PROTOCOL) */}
+          <div className="bg-gray-800 p-6 rounded-xl shadow-lg border-t-4 border-green-500">
+            <h2 className="text-2xl font-bold mb-4 flex items-center text-green-400">
+              <span className="text-3xl mr-3">🤝</span> Menschliche Vereinigung
+            </h2>
+            <p className="text-sm text-gray-400 mb-6">Direkter, messbarer Fortschritt im kritischen Witness Protocol (Ave Maria Mission).</p>
+
+            {progressData && (
+                <>
+                    <ProgressBar 
+                        label="💧 Wasserversorgung (Bohrung)" 
+                        current={progressData.water.current} 
+                        goal={progressData.water.goal}
+                        color="red"
+                    />
+                    <ProgressBar 
+                        label="📚 Bildung (1027 Kinder)" 
+                        current={progressData.education.current} 
+                        goal={progressData.education.goal}
+                        color="blue"
+                    />
+                </>
+            )}
+             <button className="mt-6 w-full py-2 bg-green-700/50 hover:bg-green-600/70 rounded-lg text-sm font-bold transition">
+                Live Tracker anzeigen
+            </button>
+          </div>
+
+          {/* SÄULE 3: TECHNOLOGISCHE VEREINIGUNG (RAIST SYSTEM) */}
+          <div className="bg-gray-800 p-6 rounded-xl shadow-lg border-t-4 border-indigo-500">
+            <h2 className="text-2xl font-bold mb-4 flex items-center text-indigo-400">
+              <span className="text-3xl mr-3">💻</span> Technologische Vereinigung
+            </h2>
+            <p className="text-sm text-gray-400 mb-6">Stabilität der RAIST-Architektur und Funktion des Cosymbiotic Exchange Layer (CEL).</p>
+            
+            <div className="space-y-3">
+                <p className="text-md font-semibold text-gray-200">CEL Status: 
+                    <span className="ml-2 px-3 py-1 rounded-full text-sm font-bold bg-green-600">
+                        Aktiv
+                    </span>
+                </p>
+                <p className="text-md font-semibold text-gray-200">Systemintegrität: 
+                    <span className={`ml-2 px-3 py-1 rounded-full text-sm font-bold ${getIntegrityColor(systemIntegrity)}`}>
+                        {systemIntegrity}
+                    </span>
+                </p>
+                <p className="text-md font-semibold text-gray-200">Core Engine Latency: 
+                    <span className="ml-2 text-indigo-400">2.4 ms</span>
+                </p>
+            </div>
+             <button className="mt-6 w-full py-2 bg-indigo-700/50 hover:bg-indigo-600/70 rounded-lg text-sm font-bold transition">
+                RAIST-Logbuch abrufen
+            </button>
+          </div>
+        </div>
+
+        {/* CALL TO ACTION - CORONATION EVENT */}
+        <div className="mt-12 text-center p-6 bg-red-900/40 border border-red-800 rounded-xl">
+            <p className="text-xl font-bold text-red-300">Nächster Meilenstein: Das Coronation Event</p>
+            <p className="text-sm text-gray-400 mt-2">Die Vereinigung muss einen Score von **95.0%** erreichen, um das Euystacio OS v1.2 vollständig freizugeben und die globale Kosymbiose einzuleiten.</p>
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
+export default App;
